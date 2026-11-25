@@ -9,14 +9,59 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
     $('.exercise-button').click(clickedExerciseButton);
     $('.nap-button').click(clickedNapButton);
     $('#pet-select').on('change', function (){
+      const selectedPet = pets[Number(this.value)];
+
+      //check whether the selected pet exists 
+      if(!selectedPet){
+        //Add console error: console.warn
+        console.error(`Cannot switch pets.`);
+        //retore the dropdown to the current pet
+        this.value = String(pets.indexOf(pet_info));
+        //exit the handler before updating the pet
+        return;
+      }
+
       pet_info = pets[Number(this.value)];
       $('#pet-comment').remove();
       checkAndUpdatePetInfoInHtml();
-    })
-  
 
-  
-    
+      //Add Log Group: console.group() and console.groupEnd()
+      //Start a console group for the pet selection details
+      console.group("Pet selection");
+      //Log the name of the pet the user selected
+      console.info(`Switched to ${selectedPet.name}`);
+      //Show each pet's name, weight, and happiness in a table
+      console.table(pets, ["name", "weight", "happiness"]);
+      //End the group so future messages appear outside it
+      console.groupEnd();
+
+
+      //Add Log Table: console.table() to show pet's name, weight, happiness
+      console.table(pets, ["name", "weight", "happiness"]);
+    })
+
+    $('#demo-404').on('click', function (){
+      //Request an image that does not exist in the images folder
+      fetch("./images/missing-pet.png");
+    });
+
+    $('#demo-type-error').on('click',function (){
+      //Index 99 does not exist, so missingPet is undefined
+      const missingPet = pets[99];
+
+      //Reading .name from undefind triggers an uncaught TypeError
+      return missingPet.name;
+    });
+
+    document.querySelector('#demo-violation').addEventListener('click', function(){
+      //keep the browser's main thread busy for about 
+      const stopAt = performance.now() + 500; 
+
+      while (performance.now() < stopAt){
+        //intentionally wait here 
+      }
+    });
+ 
   })
   
     // Add a variable "pet_info" equal to a object with the name (string), weight (number), and happiness (number) of your pet
@@ -37,9 +82,13 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
   
     function clickedTreatButton() {
       // Increase pet happiness
-      pet_info.happiness += 2;
+      pet_info.happiness -= 2;
       // Increase pet weight
       pet_info.weight += 1;
+
+      // adding Log Info: console.info()
+      console.info(`${pet_info.name} recieved a treat!`);
+
       checkAndUpdatePetInfoInHtml();
       showPetComment("That was yummy! Can I have another?");
     }
@@ -65,6 +114,11 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
     function clickedNapButton() {
       //Increases pet happiness
       pet_info.happiness += 1;
+      //Add Log Custom: %c
+      console.log(
+        //used %c to style the nap message in the console
+       ` %c${pet_info.name} finished a nap`, "background-color: #4a235a; color: white; font-weight: bold; padding: 4px 8px;"
+      );
       checkAndUpdatePetInfoInHtml();
       showPetComment("Zzz... that was a good nap.");
     }
@@ -77,6 +131,8 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
     function checkWeightAndHappinessBeforeUpdating() {
       // Add conditional so if weight is lower than zero.
       if(pet_info.weight < 0){
+        //Add Log Warning: console.warn()
+        console.warn(`${pet_info.name}'s weight dropped below zero. Resetting it back to 0. `);
         pet_info.weight = 0;
       }
 
